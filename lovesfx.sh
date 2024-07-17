@@ -5,6 +5,7 @@ set -e
 # General settings
 TITLE="Particle System Playground"
 PROGRESS="no"
+PASSWORD=""
 
 # Detect OS
 SYSTEM="$(uname -s)"
@@ -99,7 +100,12 @@ SFX_game="$DIR_game.exe"
 pack_7z() {
     if [ ! -f "$ARCHIVE_packed" ]; then
         echo "Creating $ARCHIVE_packed"
-        "./$EXE_7z" a "$ARCHIVE_packed" "$DIR_love" "$DIR_game"
+
+        if [ ! -z "$PASSWORD" ]; then
+            OPTS="$OPTS -p$PASSWORD"
+        fi
+
+        "./$EXE_7z" a $OPTS "$ARCHIVE_packed" "$DIR_love" "$DIR_game"
     fi
 }
 
