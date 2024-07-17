@@ -21,7 +21,7 @@ I tried to put everything together with ready-to-use binary building blocks and 
 
 ## Limitations
 
-- The script can only be run on Windows
+- The script can run on Windows and Linux, but only on x86_64
 - The resulting fused binary might trigger false positives in AV software (hadn't happened yet, but please report if it does)
 - The official 7z SFX module requires Administrator rights to run, so a fork running as invoker is used
 - The resulting exe metainformation and icon is kept from the SFX module

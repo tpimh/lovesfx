@@ -1,20 +1,28 @@
 #!/bin/sh
 #set -x
+set -e
 
 # General settings
 TITLE="Particle System Playground"
 PROGRESS="no"
 
+# Detect OS
+SYSTEM="$(uname -s)"
+
 # Download links
-LINK_7zr="https://7-zip.org/a/7zr.exe"
-LINK_7z="https://7-zip.org/a/7z2407-extra.7z"
+if [ "$SYSTEM" = "Linux" ]; then
+    LINK_7z="https://7-zip.org/a/7z2407-linux-x64.tar.xz"
+else
+    LINK_7zr="https://7-zip.org/a/7zr.exe"
+    LINK_7z="https://7-zip.org/a/7z2407-extra.7z"
+fi
 
 LINK_love="https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.zip"
 LINK_game="https://github.com/santoslove/particle-system-playground/archive/refs/heads/master.zip"
 LINK_sfx="https://github.com/chrislake/7zsfxmm/releases/download/1.7.1.3901/7zsd_extra_171_3901.7z"
 
 get_remote_filename() {
-    curl -LsI "$1" | grep -i content-disposition | sed -n 's/.*filename=*\([^;]*\).*/\1/p'
+    curl -LsI "$1" | grep -i content-disposition | sed -n 's/.*filename=*\([^;]*\).*/\1/p' | tr -d '\r'
 }
 
 download() {
@@ -31,36 +39,49 @@ ARCHIVE_love="$(basename "$LINK_love")"
 ARCHIVE_game="$(get_remote_filename "$LINK_game")"
 ARCHIVE_sfx="$(basename "$LINK_sfx")"
 
-download "$LINK_7zr" "$EXE_7zr"
+if [ "$SYSTEM" != "Linux" ]; then
+    download "$LINK_7zr" "$EXE_7zr"
+fi
 download "$LINK_7z" "$ARCHIVE_7z"
 download "$LINK_love" "$ARCHIVE_love"
 download "$LINK_game" "$ARCHIVE_game"
 download "$LINK_sfx" "$ARCHIVE_sfx"
 
 # Unpacked paths
-DIR_7z="${ARCHIVE_7z%.*}"
-EXE_7z="$DIR_7z/x64/7za.exe"
+DIR_7z="${ARCHIVE_7z%%.*}"
+if [ "$SYSTEM" = "Linux" ]; then
+    EXE_7z="$DIR_7z/7zz"
+else
+    EXE_7z="$DIR_7z/x64/7za.exe"
+fi
 DIR_love="${ARCHIVE_love%.*}"
 DIR_game="${ARCHIVE_game%.*}"
 DIR_sfx="${ARCHIVE_sfx%.*}"
 FILE_sfx="7zsd_All_x64.sfx"
 
 unpack_7z() {
+    TARGETDIR="-o"
     if [ ! -f "./$EXE_7z" ]; then
-        UNARCH="./$EXE_7zr"
+        if [ "$SYSTEM" = "Linux" ]; then
+            UNARCH="tar xf"
+            TARGETDIR="-C"
+        else
+            UNARCH="./$EXE_7zr x"
+        fi
     else
-        UNARCH="./$EXE_7z"
+        UNARCH="./$EXE_7z x"
     fi
 
     if [ "$#" -lt 2 ]; then
         if [ ! -d "${1%.*}" ]; then
             echo "Unpacking $1"
-            $UNARCH x "$1"
+            $UNARCH "$1"
         fi
     else
         if [ ! -d "$2" ]; then
             echo "Unpacking $1"
-            $UNARCH x "$1" -o"$2"
+            mkdir -p "$2"
+            $UNARCH "$1" "$TARGETDIR$2"
         fi
     fi
 }
@@ -105,6 +126,6 @@ patch_config
 create_sfx
 
 # Clean up
-#rm "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx"
+#rm -f "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx"
 #rm -rf "$DIR_7z" "$DIR_love" "$DIR_game" "$DIR_sfx"
 #rm "$CONFIG_file" "$ARCHIVE_packed" "$SFX_game"
