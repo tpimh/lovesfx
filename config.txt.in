@@ -1,0 +1,5 @@
+;!@Install@!UTF-8!
+Title="@TITLE@"
+Progress="@PROGRESS@"
+RunProgram="@LOVE@\love.exe %%T\@GAME@"
+;!@InstallEnd@!
