@@ -124,8 +124,23 @@ else
 fi
 
 # Icon settings
+FILE_conf="conf.lua"
 FILE_ico="${FILE_icon%.*}.ico"
 SFX_game="$DIR_game.exe"
+
+patch_game() {
+    if [ ! -f "$DIR_game/$FILE_icon" ]; then
+        echo "Adding icon to $DIR_game"
+        cp "$FILE_icon" "$DIR_game"
+    fi
+
+    if [ ! -f "$DIR_game/$FILE_conf" ]; then
+        echo "Creating $DIR_game/$FILE_conf"
+        sed -e "s|@TITLE@|$TITLE|g" \
+            -e "s|@ICON@|$FILE_icon|g" \
+            "$FILE_conf.in" > "$DIR_game/$FILE_conf"
+    fi
+}
 
 generate_ico() {
     if [ ! -f "$FILE_ico" ]; then
@@ -154,6 +169,7 @@ modify_sfx() {
     fi
 }
 
+patch_game
 generate_ico
 modify_sfx
 

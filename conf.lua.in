@@ -1,0 +1,4 @@
+function love.conf(t)
+    t.window.title = "@TITLE@"
+    t.window.icon = "@ICON@"
+end
