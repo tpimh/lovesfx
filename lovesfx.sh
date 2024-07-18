@@ -6,6 +6,9 @@ set -e
 TITLE="Particle System Playground"
 PROGRESS="no"
 PASSWORD=""
+AUTHOR="santoslove"
+VERSION="1.0.0.0"
+LICENSE="Public Domain"
 
 # Detect OS
 SYSTEM="$(uname -s)"
@@ -122,6 +125,7 @@ fi
 
 # Icon settings
 FILE_ico="${FILE_icon%.*}.ico"
+SFX_game="$DIR_game.exe"
 
 generate_ico() {
     if [ ! -f "$FILE_ico" ]; then
@@ -136,7 +140,17 @@ modify_sfx() {
     if [ ! -f "$FILE_sfx" ]; then
         echo "Patching $FILE_sfx"
         cp "$DIR_sfx/$FILE_sfx" .
-        ./$EXE_rcedit "$FILE_sfx" --set-icon "$FILE_ico"
+        ./$EXE_rcedit "$FILE_sfx" \
+            --set-version-string CompanyName "$AUTHOR" \
+            --set-version-string ProductName "$TITLE" \
+            --set-version-string FileDescription "$TITLE love2d game" \
+            --set-version-string InternalName "$DIR_game" \
+            --set-version-string LegalCopyright "$LICENSE" \
+            --set-version-string OriginalFilename "$SFX_game" \
+            --set-version-string PrivateBuild "$VERSION" \
+            --set-file-version "$VERSION" \
+            --set-product-version "$VERSION" \
+            --set-icon "$FILE_ico"
     fi
 }
 
@@ -146,7 +160,6 @@ modify_sfx
 # SFX settings
 CONFIG_file="config.txt"
 ARCHIVE_packed="$DIR_game.7z"
-SFX_game="$DIR_game.exe"
 
 pack_7z() {
     if [ ! -f "$ARCHIVE_packed" ]; then
