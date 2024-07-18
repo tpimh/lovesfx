@@ -23,6 +23,7 @@ fi
 LINK_love="https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.zip"
 LINK_game="https://github.com/santoslove/particle-system-playground/archive/refs/heads/master.zip"
 LINK_icon="https://upload.wikimedia.org/wikipedia/commons/6/6f/Softies-icons-star_256px.png"
+LINK_rcedit="https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe"
 LINK_sfx="https://github.com/chrislake/7zsfxmm/releases/download/1.7.1.3901/7zsd_extra_171_3901.7z"
 
 get_remote_filename() {
@@ -44,6 +45,7 @@ ARCHIVE_game="$(get_remote_filename "$LINK_game")"
 ARCHIVE_sfx="$(basename "$LINK_sfx")"
 FILE_icon="icon.png"
 ARCHIVE_magick="$(basename "$LINK_magick")"
+FILE_rcedit="$(basename "$LINK_rcedit")"
 
 if [ "$SYSTEM" != "Linux" ]; then
     download "$LINK_7zr" "$EXE_7zr"
@@ -54,6 +56,7 @@ download "$LINK_game" "$ARCHIVE_game"
 download "$LINK_sfx" "$ARCHIVE_sfx"
 download "$LINK_icon" "$FILE_icon"
 download "$LINK_magick" "$ARCHIVE_magick"
+download "$LINK_rcedit" "$FILE_rcedit"
 
 # Unpacked paths
 DIR_7z="${ARCHIVE_7z%%.*}"
@@ -71,6 +74,7 @@ if [ "$SYSTEM" = "Linux" ]; then
 else
     DIR_magick="${ARCHIVE_magick%.*}"
     EXE_magick="$DIR_magick/magick.exe"
+    EXE_rcedit="$FILE_rcedit"
 fi
 
 unpack_7z() {
@@ -122,7 +126,16 @@ generate_ico() {
     fi
 }
 
+modify_sfx() {
+    if [ ! -f "$FILE_sfx" ]; then
+        echo "Patching $FILE_sfx"
+        cp "$DIR_sfx/$FILE_sfx" .
+        "./$EXE_rcedit" "$FILE_sfx" --set-icon "$FILE_ico"
+    fi
+}
+
 generate_ico
+modify_sfx
 
 # SFX settings
 CONFIG_file="config.txt"
@@ -155,7 +168,7 @@ patch_config() {
 create_sfx() {
     if [ ! -f "$SFX_game" ]; then
         echo "Creating $SFX_game"
-        cat "$DIR_sfx/$FILE_sfx" "$CONFIG_file" "$ARCHIVE_packed" > "$SFX_game"
+        cat "$FILE_sfx" "$CONFIG_file" "$ARCHIVE_packed" > "$SFX_game"
     fi
 }
 
@@ -164,6 +177,6 @@ patch_config
 create_sfx
 
 # Clean up
-#rm -f "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx" "$ARCHIVE_magick" "$FILE_icon" "$FILE_ico"
+#rm -f "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx" "$ARCHIVE_magick" "$FILE_icon" "$FILE_rcedit"
 #rm -rf "$DIR_7z" "$DIR_love" "$DIR_game" "$DIR_sfx" "$DIR_magick"
-#rm "$CONFIG_file" "$ARCHIVE_packed" "$SFX_game"
+#rm -f "$FILE_ico" "$FILE_sfx" "$CONFIG_file" "$ARCHIVE_packed" "$SFX_game"
