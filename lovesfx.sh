@@ -14,6 +14,7 @@ SYSTEM="$(uname -s)"
 if [ "$SYSTEM" = "Linux" ]; then
     LINK_7z="https://7-zip.org/a/7z2407-linux-x64.tar.xz"
     LINK_magick="https://imagemagick.org/archive/binaries/magick"
+    LINK_wine="https://github.com/mmtrt/WINE_AppImage/releases/download/staging-v8/wine-staging_8.21-x86_64.AppImage"
 else
     LINK_7zr="https://7-zip.org/a/7zr.exe"
     LINK_7z="https://7-zip.org/a/7z2407-extra.7z"
@@ -39,6 +40,7 @@ download() {
 
 # File paths
 EXE_7zr="$(basename "$LINK_7zr")"
+EXE_wine="$(basename "$LINK_wine")"
 ARCHIVE_7z="$(basename "$LINK_7z")"
 ARCHIVE_love="$(basename "$LINK_love")"
 ARCHIVE_game="$(get_remote_filename "$LINK_game")"
@@ -49,6 +51,8 @@ FILE_rcedit="$(basename "$LINK_rcedit")"
 
 if [ "$SYSTEM" != "Linux" ]; then
     download "$LINK_7zr" "$EXE_7zr"
+else
+    download "$LINK_wine" "$EXE_wine"
 fi
 download "$LINK_7z" "$ARCHIVE_7z"
 download "$LINK_love" "$ARCHIVE_love"
@@ -71,6 +75,7 @@ DIR_sfx="${ARCHIVE_sfx%.*}"
 FILE_sfx="7zsd_All_x64.sfx"
 if [ "$SYSTEM" = "Linux" ]; then
     EXE_magick="$ARCHIVE_magick"
+    EXE_rcedit="$EXE_wine $FILE_rcedit"
 else
     DIR_magick="${ARCHIVE_magick%.*}"
     EXE_magick="$DIR_magick/magick.exe"
@@ -110,6 +115,7 @@ unpack_7z "$ARCHIVE_game"
 unpack_7z "$ARCHIVE_sfx" "$DIR_sfx"
 if [ "$SYSTEM" = "Linux" ]; then
     chmod +x "$EXE_magick"
+    chmod +x "$EXE_wine"
 else
     unpack_7z "$ARCHIVE_magick"
 fi
@@ -130,7 +136,7 @@ modify_sfx() {
     if [ ! -f "$FILE_sfx" ]; then
         echo "Patching $FILE_sfx"
         cp "$DIR_sfx/$FILE_sfx" .
-        "./$EXE_rcedit" "$FILE_sfx" --set-icon "$FILE_ico"
+        ./$EXE_rcedit "$FILE_sfx" --set-icon "$FILE_ico"
     fi
 }
 
@@ -177,6 +183,6 @@ patch_config
 create_sfx
 
 # Clean up
-#rm -f "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx" "$ARCHIVE_magick" "$FILE_icon" "$FILE_rcedit"
+#rm -f "$EXE_7zr" "$EXE_wine" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx" "$ARCHIVE_magick" "$FILE_icon" "$FILE_rcedit"
 #rm -rf "$DIR_7z" "$DIR_love" "$DIR_game" "$DIR_sfx" "$DIR_magick"
 #rm -f "$FILE_ico" "$FILE_sfx" "$CONFIG_file" "$ARCHIVE_packed" "$SFX_game"

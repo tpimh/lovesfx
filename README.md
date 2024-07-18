@@ -17,12 +17,13 @@ I tried to put everything together with ready-to-use binary building blocks and 
 1. Download 7z, LÖVE runtine, a sample game and 7z SFX module
 2. Unpack the downloaded components
 3. Generate a Windows-compatible icon
-4. Repack the game and LÖVE runtime into a 7z archive
-5. Fuse the archive with the SFX module and a config that will run the game when it is unpacked
+4. Replace the icon and metainformation in the SFX module
+5. Repack the game and LÖVE runtime into a 7z archive
+6. Fuse the archive with the SFX module and a config that will run the game when it is unpacked
 
 ## Limitations
 
 - The script can run on Windows and Linux, but only on x86_64
 - The resulting fused binary might trigger false positives in AV software (hadn't happened yet, but please report if it does)
 - The official 7z SFX module requires Administrator rights to run, so a fork running as invoker is used
-- The resulting exe metainformation and icon is kept from the SFX module
+- Replacing exe metainformation and icon in the SFX module on Linux relies on Wine which is a very ugly solution, should be replaced with native alternative as soon as it is found

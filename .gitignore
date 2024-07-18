@@ -4,6 +4,7 @@
 *.zip
 *.exe
 *.sfx
+*.AppImage
 config.txt
 magick
 icon.png
