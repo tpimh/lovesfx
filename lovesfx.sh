@@ -13,13 +13,16 @@ SYSTEM="$(uname -s)"
 # Download links
 if [ "$SYSTEM" = "Linux" ]; then
     LINK_7z="https://7-zip.org/a/7z2407-linux-x64.tar.xz"
+    LINK_magick="https://imagemagick.org/archive/binaries/magick"
 else
     LINK_7zr="https://7-zip.org/a/7zr.exe"
     LINK_7z="https://7-zip.org/a/7z2407-extra.7z"
+    LINK_magick="https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-35-portable-Q16-HDRI-x64.zip"
 fi
 
 LINK_love="https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.zip"
 LINK_game="https://github.com/santoslove/particle-system-playground/archive/refs/heads/master.zip"
+LINK_icon="https://upload.wikimedia.org/wikipedia/commons/6/6f/Softies-icons-star_256px.png"
 LINK_sfx="https://github.com/chrislake/7zsfxmm/releases/download/1.7.1.3901/7zsd_extra_171_3901.7z"
 
 get_remote_filename() {
@@ -39,6 +42,8 @@ ARCHIVE_7z="$(basename "$LINK_7z")"
 ARCHIVE_love="$(basename "$LINK_love")"
 ARCHIVE_game="$(get_remote_filename "$LINK_game")"
 ARCHIVE_sfx="$(basename "$LINK_sfx")"
+FILE_icon="icon.png"
+ARCHIVE_magick="$(basename "$LINK_magick")"
 
 if [ "$SYSTEM" != "Linux" ]; then
     download "$LINK_7zr" "$EXE_7zr"
@@ -47,6 +52,8 @@ download "$LINK_7z" "$ARCHIVE_7z"
 download "$LINK_love" "$ARCHIVE_love"
 download "$LINK_game" "$ARCHIVE_game"
 download "$LINK_sfx" "$ARCHIVE_sfx"
+download "$LINK_icon" "$FILE_icon"
+download "$LINK_magick" "$ARCHIVE_magick"
 
 # Unpacked paths
 DIR_7z="${ARCHIVE_7z%%.*}"
@@ -59,6 +66,12 @@ DIR_love="${ARCHIVE_love%.*}"
 DIR_game="${ARCHIVE_game%.*}"
 DIR_sfx="${ARCHIVE_sfx%.*}"
 FILE_sfx="7zsd_All_x64.sfx"
+if [ "$SYSTEM" = "Linux" ]; then
+    EXE_magick="$ARCHIVE_magick"
+else
+    DIR_magick="${ARCHIVE_magick%.*}"
+    EXE_magick="$DIR_magick/magick.exe"
+fi
 
 unpack_7z() {
     TARGETDIR="-o"
@@ -91,6 +104,25 @@ unpack_7z "$ARCHIVE_7z" "$DIR_7z"
 unpack_7z "$ARCHIVE_love"
 unpack_7z "$ARCHIVE_game"
 unpack_7z "$ARCHIVE_sfx" "$DIR_sfx"
+if [ "$SYSTEM" = "Linux" ]; then
+    chmod +x "$EXE_magick"
+else
+    unpack_7z "$ARCHIVE_magick"
+fi
+
+# Icon settings
+FILE_ico="${FILE_icon%.*}.ico"
+
+generate_ico() {
+    if [ ! -f "$FILE_ico" ]; then
+        echo "Creating $FILE_ico"
+        # 256, 48, 32, 24, 16: these sizes are the minimum requirement according to Microsoft
+        # https://learn.microsoft.com/en-us/windows/apps/design/style/iconography/app-icon-construction#icon-scaling
+        "./$EXE_magick" "$FILE_icon" -define icon:auto-resize=256,48,32,24,16 "$FILE_ico"
+    fi
+}
+
+generate_ico
 
 # SFX settings
 CONFIG_file="config.txt"
@@ -132,6 +164,6 @@ patch_config
 create_sfx
 
 # Clean up
-#rm -f "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx"
-#rm -rf "$DIR_7z" "$DIR_love" "$DIR_game" "$DIR_sfx"
+#rm -f "$EXE_7zr" "$ARCHIVE_7z" "$ARCHIVE_love" "$ARCHIVE_game" "$ARCHIVE_sfx" "$ARCHIVE_magick" "$FILE_icon" "$FILE_ico"
+#rm -rf "$DIR_7z" "$DIR_love" "$DIR_game" "$DIR_sfx" "$DIR_magick"
 #rm "$CONFIG_file" "$ARCHIVE_packed" "$SFX_game"

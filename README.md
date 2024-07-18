@@ -16,8 +16,9 @@ I tried to put everything together with ready-to-use binary building blocks and 
 
 1. Download 7z, LÖVE runtine, a sample game and 7z SFX module
 2. Unpack the downloaded components
-3. Repack the game and LÖVE runtime into a 7z archive
-4. Fuse the archive with the SFX module and a config that will run the game when it is unpacked
+3. Generate a Windows-compatible icon
+4. Repack the game and LÖVE runtime into a 7z archive
+5. Fuse the archive with the SFX module and a config that will run the game when it is unpacked
 
 ## Limitations
 
